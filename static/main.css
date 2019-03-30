@@ -1,0 +1,24 @@
+html, body {
+  height: 100%;
+  color:white;
+  background-color: black;
+}
+
+body {
+  margin: 0;
+  display: flex;
+
+  /* This centers our sketch horizontally. */
+  justify-content: center;
+
+  /* This centers our sketch vertically. */
+  align-items: center;
+}
+
+button {
+  background-color: black;
+  color: white;
+  border-radius: 5px;
+  border: 8px, white;
+}
+

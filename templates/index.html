@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>the-form-of-becoming</title>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.3.1.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='p5.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='p5.dom.js') }}"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+	<script type="text/javascript" charset="utf-8">
+		var d=0;
+		var initData;
+		var status;
+		var socket;
+        $(document).ready(function(){
+            namespace = '/main'; // change to an empty string to use the global namespace
+
+            // the socket.io documentation recommends sending an explicit package upon connection
+            // this is specially important when using the global namespace
+            socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            
+            socket.on('connect', function(msg){
+                if(msg != undefined){
+					status = msg.data;
+				}
+				//console.log(status);
+            });
+            
+            socket.on('disconnect', function(msg){
+				console.log("SERVER OFFLINE");
+				socket.reconnectionDelay /= 2;
+                if(msg != undefined){
+					console.log(msg.data);
+					status = "disconnected";
+				}
+            });
+            
+            socket.on('init_data', function(msg){
+				initData = msg;
+				//console.log(initData);
+			});
+	
+            socket.on('message', function(msg){
+                //console.log(msg.data)
+                d = msg.data[0];        
+            });
+    
+        });
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='sketch.js') }}"></script>
+</body>
+</html>
