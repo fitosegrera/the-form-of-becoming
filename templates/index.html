@@ -14,6 +14,8 @@
 		var initData;
 		var status;
 		var socket;
+		var rtData;
+		
         $(document).ready(function(){
             namespace = '/main'; // change to an empty string to use the global namespace
 
@@ -39,6 +41,11 @@
             
             socket.on('init_data', function(msg){
 				initData = msg;
+				//console.log(initData);
+			});
+			
+	    socket.on('refresh_times', function(msg){
+				rtData = msg;
 				//console.log(initData);
 			});
 	
