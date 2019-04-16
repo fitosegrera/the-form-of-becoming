@@ -29,6 +29,8 @@ agents = [[None for x in range(agentsPerBoard)] for y in range(totalBoards)]
 previousState = [[None for x in range(agentsPerBoard)] for y in range(totalBoards)]
 angles = [[None for x in range(agentsPerBoard)] for y in range(totalBoards)]
 rt = [[None for x in range(agentsPerBoard)] for y in range(totalBoards)]
+isDone = [[None for x in range(agentsPerBoard)] for y in range(totalBoards)]
+emptyArray = [[] for y in range(totalBoards)]
 
 max_angle = 165 # maximum angle for the motor before the linear actuator passes the vertical limit
 
@@ -37,9 +39,9 @@ ACTIONS = ['down', 'up']
 EPSILON = 0.9   
 ALPHA = 0.1     
 GAMMA = 0.9    
-MAX_EPISODES = 50  
+MAX_EPISODES = 0 #50, will take over 1 hour  
 REFRESH_TIME_MIN = 0.2 #use minimum 0.2
-REFRESH_TIME_MAX = 0.6 #use maximum 0.8
+REFRESH_TIME_MAX = 0.25 #use maximum 0.8
 EPISODE_TIME = 0
 
 stopThread = False
@@ -63,6 +65,7 @@ def setupQl():
 			agents[board][agent] = ql
 			previousState[board][agent] = 0
 			angles[board][agent] = 0
+			isDone[board][agent] = agent
 
 	for i in range(len(kit.servo)):
 		kit.servo[i].angle = 0
@@ -93,6 +96,17 @@ def agents_learning():
 					angles[board][agent] = angle
 					kit.servo[agent].angle = angle
 				#time.sleep(0.1)
+				if ql[board][agent].done:
+					if agent in isDone[board]:
+						try:
+							isDone[board].remove(agent)
+						except:
+							pass
+						print("REMOVING agent", agent)	
+						print(isDone)					
+					if isDone is emptyArray:
+						print("ALL AGENTS DONE!")
+					
 			time.sleep(0.2)
 			socketio.emit('message', {'data': angles}, namespace='/main')
 		if stopThread:
