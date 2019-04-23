@@ -40,6 +40,19 @@ def stepsTest():
         kit.servo[i].angle = 0
         time.sleep(d)
     time.sleep(1)
-    
-fullTest()
+
+def inverseTest():
+    d=1
+    for i in range(len(kit.servo)):
+        if(i==2):
+            kit.servo[i].angle = 0
+    time.sleep(3)
+
+    for i in range(len(kit.servo)):
+        if(i==2):
+            kit.servo[i].angle = 165
+    time.sleep(3)
+
+#fullTest()
 #stepsTest()
+inverseTest()

@@ -73,10 +73,10 @@ function draw() {
 	var rtDataParsed;
 	if(rtData != undefined && started){
 	  rtDataParsed = JSON.parse(rtData);
-	  rt = rtDataParsed.RT[0];
+	  rt = rtDataParsed.RT;
 	  console.log(rt);
 	}
-	
+
 	for (var i=0; i<d.length; i++){
 	  ellipse(space+i*space,marginY-map(d[i],0,180,0,100),5,5);
 	  if(i>0){

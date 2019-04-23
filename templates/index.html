@@ -46,12 +46,12 @@
 			
 	    socket.on('refresh_times', function(msg){
 				rtData = msg;
-				//console.log(initData);
+				//console.log(rtData );
 			});
 	
             socket.on('message', function(msg){
                 //console.log(msg.data)
-                d = msg.data[0];        
+                d = msg.data;        
             });
     
         });
