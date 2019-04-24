@@ -88,7 +88,7 @@ def restartAll():
 	
 #############################################	
 def agents_learning():
-	global stopThread, systemRun, thread
+	global stopThread, systemRun, thread, restartSystem
 	ql = setupQl()
 	print("\nSystem Initiated!")
 	currentDT = datetime.datetime.now()
