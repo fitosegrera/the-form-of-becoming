@@ -6,25 +6,26 @@ var rt;
 
 function setup() { 
   createCanvas(windowWidth, windowHeight);
+  textSize(12);
   space = windowWidth/17;
   marginY = windowHeight/2;
   buttonStart = createButton('START');
-  buttonStart.position(space, 40);
+  buttonStart.position(space, 100);
   buttonStart.mouseClicked(start);
   buttonStop = createButton('STOP');
-  buttonStop.position(space+60, 40);
+  buttonStop.position(space+60, 100);
   buttonStop.mouseClicked(stop);
   buttonPower = createButton('SHUTDOWN PC');
-  buttonPower.position(space, 70);
+  buttonPower.position(space, 130);
   buttonPower.mouseClicked(shutDown);
   buttonReboot = createButton('REBOOT PC');
-  buttonReboot.position(space, 100);
+  buttonReboot.position(space, 160);
   buttonReboot.mouseClicked(rebootPc);
   buttonTest = createButton('PARALLEL TEST');
-  buttonTest.position(space, 130);
+  buttonTest.position(space, 190);
   buttonTest.mouseClicked(testParallel);
   buttonTestSerial = createButton('SERIAL TEST');
-  buttonTestSerial.position(space+122, 130);
+  buttonTestSerial.position(space+122, 190);
   buttonTestSerial.mouseClicked(testSerial);
 
 } 
@@ -43,6 +44,9 @@ function draw() {
 	line(space, marginY, width-space, marginY);
 	strokeWeight(0.5);
 	text(status, space + 20, 25);
+	text("Name:  "+pcname, space, 45);
+	text("IP:  "+ip, space, 65);
+	text("Temp:  "+tmp, space, 85);
 	if(status == "connected"){
 	  fill(0, 255, 0);
 	}else{
@@ -74,7 +78,7 @@ function draw() {
 	if(rtData != undefined && started){
 	  rtDataParsed = JSON.parse(rtData);
 	  rt = rtDataParsed.RT;
-	  console.log(rt);
+	  //console.log(rt);
 	}
 
 	for (var i=0; i<d.length; i++){
@@ -89,9 +93,11 @@ function draw() {
 	  }
 	  var numb = rt[i];
 	  numb = Math.floor(numb*100)/100;
+	  var state = d[i]/5; //5 is the current value used in the main.py software to calculate angles
 	  text("M"+i.toString(),space+i*space-10, marginY+30); 
 	  text("A: "+ d[i].toString(),space+i*space-10, marginY+50); 
-	  text("RT: " +  numb.toString(), space+i*space-10, marginY+70);
+	  text("S: " +  state.toString(), space+i*space-10, marginY+70);
+	  text("RT: " +  numb.toString(), space+i*space-10, marginY+90);
 	}
       
 }

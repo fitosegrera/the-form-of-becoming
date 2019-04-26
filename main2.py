@@ -1,10 +1,12 @@
 #main.py
+import netifaces as ni
+import socket 
 import qlearning
 import sys, os
 import random
 from adafruit_servokit import ServoKit
 import datetime
-
+from timeit import default_timer as timer
 from gevent import monkey
 monkey.patch_all()
 
@@ -33,6 +35,9 @@ isDone = [None for x in range(agentsPerBoard)]
 
 max_angle = 165 # maximum angle for the motor before the linear actuator passes the vertical limit
 
+startTime = timer()
+timeCycle = 10
+
 N_STATES = 33  # 165/5 = 33 (each state is 5 degrees of rotation)
 ACTIONS = ['down', 'up']   
 EPSILON = 0.9   
@@ -47,6 +52,18 @@ stopThread = False
 shutdown = False
 rebootAction = False
 restartSystem = False
+
+   
+hostname = socket.gethostname()    
+ni.ifaddresses('eth0')
+ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
+
+
+#############################################
+def measure_temp():
+	temp = os.popen("vcgencmd measure_temp").readline()
+	return (temp.replace("temp=",""))
+
 
 #############################################
 def setupQl():
@@ -74,42 +91,41 @@ def setupQl():
 
 #############################################	
 def restartAll():
-	global restartSystem, thread
+	global restartSystem, thread, isDone, agentsPerBoard
 	restartSystem = False
 	if thread is not None:
 		print("Thread Stopped")
 		print("thread is alive:",thread.isAlive())
-		thread.join() 
+		#thread.join() 
 		thread = None
 	print("in balance and silence...")
-	sleep(5)
+	time.sleep(5)
 	print("Restarting...")
+	isDone = [None for x in range(agentsPerBoard)]
 	initThread()
 	
 #############################################	
 def agents_learning():
-	global stopThread, systemRun, thread, restartSystem
+	global stopThread, systemRun, thread, restartSystem, startTime, timeCycle
 	ql = setupQl()
 	print("\nSystem Initiated!")
 	currentDT = datetime.datetime.now()
 	print ("\nStarting Time:",str(currentDT), "\n")
 	while True:
+		ellapsedTime = timer()-startTime
+		if(ellapsedTime > timeCycle):
+			socketio.emit('temp', {'data': measure_temp()}, namespace='/main')
+			startTime = timer()
 		for agent in range(agentsPerBoard):
 			ql[agent].run()
 			if ql[agent].S != previousState[agent]:
 				previousState[agent] = ql[agent].S 
 				angle = 0
 				if ql[agent].S == "terminal":
-					if(agent==2):
-						angle = 0
-					else:
-						angle = max_angle
+					angle = max_angle
 					#print("Agent", agent, "terminal!")
 				else:
-					if(agent==2):
-						angle = max_angle - ql[agent].S * 5
-					else:
-						angle = ql[agent].S * 5
+					angle = ql[agent].S * 5
 						
 				angles[agent] = angle
 				kit.servo[agent].angle = angle
@@ -141,6 +157,7 @@ def agents_learning():
 	print("Loop Break")
 	if(restartSystem):
 		restartAll()
+	print("EXITING THREADING FUNCTION")
 
 #############################################
 def parallelTest():
@@ -171,7 +188,8 @@ def serialTest():
 
 #############################################
 def initThread():
-	global thread
+	global thread, isDone
+	isDone = [None for x in range(agentsPerBoard)]
 	print("starting thread")
 	print(thread)
 	if thread is None:
@@ -261,6 +279,7 @@ def power(msg):
 			
 @socketio.on('connect', namespace='/main')
 def connect():
+	global hostname, ip
 	emit('connect', {'data': 'connected'})
 	initData = {
 		'N_STATES': N_STATES,  
@@ -275,6 +294,11 @@ def connect():
 	}
 	#print (initData)
 	emit('init_data', json.dumps(initData))
+	pc1 = {
+		'name': hostname,
+		'ip': ip
+	}
+	emit('pc', json.dumps(pc1))
 		
 @socketio.on('disconnect', namespace='/main')
 def disconnect():
